@@ -1,4 +1,4 @@
-# Configuration Mananger AKA Con-Man
+# Configuration Manager AKA Con-Man
 
 ## Configuration
 conman-config.yaml check dropwizard.io configuration.
