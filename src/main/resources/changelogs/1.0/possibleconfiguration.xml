@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="possibleconfiguration-v1" author="npetzall">
+        <comment>The main possible configuation table</comment>
+        <createTable tableName="possibleconfiguration">
+            <column name="service" type="varchar(80)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="key" type="varchar(80)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)"/>
+            <column name="valueRestriction" type="varchar(255)"/>
+            <column name="valueRestrictionType" type="varchar(40)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

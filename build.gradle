@@ -1,0 +1,100 @@
+plugins {
+  id "org.sonarqube" version "2.1"
+  id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
+
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'jacoco'
+apply plugin: 'distribution'
+
+group 'npetzall.con-man'
+version '1.0.0'
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+  jcenter()
+}
+
+//trying to get coverage per test in sonarqube when using spock
+sourceSets {
+    test {
+        groovy {
+            srcDirs = ['src/test/java']
+        }
+    }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile "io.dropwizard:dropwizard-core:$dropwizardVersion"
+    compile "io.dropwizard:dropwizard-jdbi:$dropwizardVersion"
+    compile "io.dropwizard:dropwizard-migrations:$dropwizardVersion"
+    compile "com.h2database:h2:$h2Version"
+
+    testCompile "org.spockframework:spock-core:$spockVersion"
+    testCompile 'cglib:cglib-nodep:3.2.4'
+    testCompile "io.dropwizard:dropwizard-testing:$dropwizardVersion"
+    testCompile 'net.javacrumbs.json-unit:json-unit-fluent:1.15.0'
+    //testCompile 'org.sonarsource.java:sonar-jacoco-listeners:4.2'
+    //testCompile 'npetzall:sonar-jacoco-spock-listener:1.0.0'
+}
+
+def mainClass = 'npetzall.conman.server.ConManApplication'
+
+task run (type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = mainClass
+    args 'server','./src/dist/conman-config.yaml'
+}
+
+jacoco {
+    toolVersion = "0.7.5.201505241946"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true
+    }
+}
+
+test.finalizedBy jacocoTestReport
+
+shadowJar {
+    mergeServiceFiles()
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClass
+    }
+}
+
+distTar.dependsOn shadowJar
+distTar.compression 'GZIP'
+distTar.extension 'tar.gz'
+distZip.enabled = false
+
+distributions {
+    main {
+        baseName = 'con-man'
+        contents {
+            from shadowJar.archivePath
+            from { 'src/dist/' }
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.1'
+}

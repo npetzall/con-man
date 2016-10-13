@@ -1,0 +1,7 @@
+{
+  "service":"possibleService",
+  "key":"possibleKey",
+  "description":"possibleDescription",
+  "valueRestriction": "one,two,three",
+  "valueRestrictionType": "csv"
+}
