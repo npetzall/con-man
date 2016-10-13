@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/npetzall/con-man.svg?branch=master)](https://travis-ci.org/npetzall/con-man)
 # Configuration Manager AKA Con-Man
 
 ## Configuration
