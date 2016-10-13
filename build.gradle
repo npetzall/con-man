@@ -48,11 +48,19 @@ dependencies {
 
 def mainClass = 'npetzall.conman.server.ConManApplication'
 
+task db (type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = mainClass
+    args 'db','migrate','./src/dist/conman-config.yaml'
+}
+
 task run (type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = mainClass
     args 'server','./src/dist/conman-config.yaml'
 }
+
+run.dependsOn db
 
 jacoco {
     toolVersion = "0.7.5.201505241946"
