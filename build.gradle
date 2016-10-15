@@ -1,6 +1,7 @@
 plugins {
   id "org.sonarqube" version "2.1"
   id 'com.github.johnrengelman.shadow' version '1.2.3'
+  id 'com.github.ben-manes.versions' version '0.13.0'
 }
 
 apply plugin: 'idea'
@@ -41,7 +42,7 @@ dependencies {
     testCompile "org.spockframework:spock-core:$spockVersion"
     testCompile 'cglib:cglib-nodep:3.2.4'
     testCompile "io.dropwizard:dropwizard-testing:$dropwizardVersion"
-    testCompile 'net.javacrumbs.json-unit:json-unit-fluent:1.15.0'
+    testCompile 'net.javacrumbs.json-unit:json-unit-fluent:1.16.0'
     //testCompile 'org.sonarsource.java:sonar-jacoco-listeners:4.2'
     //testCompile 'npetzall:sonar-jacoco-spock-listener:1.0.0'
 }
