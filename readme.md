@@ -15,30 +15,72 @@ response APPLICATION_JSON:
   {
     "service": "mylittleservice",
     "key": "myconfigurationkey",
+    "env": "default",
     "value": "mylittlevalue"
   },{
     "service": "mylittleservice",
     "key": "myconfigurationkeyTwo",
+    "env": "default",
     "value": "mylittlevalue"
   }
 ]
 ```
+
+GET /config/{service}?env=custom
+response APPLICATION_JSON:
+```
+[
+  {
+    "service": "mylittleservice",
+    "key": "myconfigurationkey",
+    "env": "custom",
+    "value": "mylittlevalue"
+  },{
+    "service": "mylittleservice",
+    "key": "myconfigurationkeyTwo",
+    "env": "custom",
+    "value": "mylittlevalue"
+  }
+]
+```
+
 GET /config/{service}/{key}
-response APPLICATION_JSON:  
+response APPLICATION_JSON:
 ```
 {
   "service": "mylittleservice",
   "key": "myconfigurationkey",
+  "env": "default",
   "value": "mylittlevalue"
 }
 ```
+
+GET /config/{service}/{key}?env=custom
+response APPLICATION_JSON:
+```
+{
+  "service": "mylittleservice",
+  "key": "myconfigurationkey",
+  "env": "custom",
+  "value": "mylittlevalue"
+}
+```
+
 GET /config/{service}/{key}/value 
 response TEXT_PLAIN:  
-`[value]`
+`[env default value]`
+
+GET /config/{service}/{key}/value?env=custom
+response TEXT_PLAIN:
+`[env custom value]`
 
 PUT /config/{service}/{key}  
 request body TEXT_PLAIN:  
-`[value]`
+`[env default value]`
+
+PUT /config/{service}/{key}?env=custom
+request body TEXT_PLAIN:
+`[env custom value]`
 
 GET /possible/{service}
 response APPLICATION_JSON:
@@ -108,12 +150,18 @@ request body TEXT_PLAIN:
 
 ## Future
 
-GET /config/{service}/{key}?version&env&qualifier  
-GET /config/{service}/{key}/value?version&env&qualifier  
+GET /config/{service}/{key}?qualifier
+GET /config/{service}/{key}?env&qualifier
 
-PUT /config/{service}/{key}?version&env&qulifier  
-DELETE /config/{service}/{key}  
-DELETE /config/{service}/{key}?version&env&qualifier
+GET /config/{service}/{key}/value?qualifier
+GET /config/{service}/{key}/value?env&qualifier
 
-GET /possible/{service}/{key}?version&env  
-PUT /possible/{service}/{key}?version&env  
+PUT /config/{service}/{key}?qulifier
+PUT /config/{service}/{key}?env&qulifier
+
+
+DELETE /config/{service}/{key}
+DELETE /config/{service}/{key}?env&qualifier
+
+GET /possible/{service}/{key}
+PUT /possible/{service}/{key}

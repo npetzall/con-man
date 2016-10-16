@@ -41,7 +41,7 @@ public class ConManApplication extends Application<ConManConfiguration> {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length == 1 && args[0].equalsIgnoreCase("server")) {
+        if (args.length == 1 && "server".equalsIgnoreCase(args[0])) {
             new ConManApplication().run("server", "../config/conman-config.yaml");
         } else {
             new ConManApplication().run(args);

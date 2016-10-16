@@ -1,5 +1,6 @@
 {
   "service":"testService",
   "key":"testKey",
+  "env":"default",
   "value":"testValue"
 }

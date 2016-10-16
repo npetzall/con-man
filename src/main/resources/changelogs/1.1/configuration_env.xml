@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="configuration-v1.1-env" author="npetzall">
+        <comment>Addind env column</comment>
+        <dropPrimaryKey tableName="configuration"/>
+        <addColumn tableName="configuration">
+            <column name="env" type="varchar(20)" value="default" defaultValue="default" afterColumn="key">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addPrimaryKey tableName="configuration" columnNames="service,key,env"/>
+        <rollback>
+            <delete tableName="configuration">
+                <where>env != 'default'</where>
+            </delete>
+            <dropPrimaryKey tableName="configuration"/>
+            <dropColumn tableName="configuration" columnName="env"/>
+            <addPrimaryKey tableName="configuration" columnNames="service,key"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

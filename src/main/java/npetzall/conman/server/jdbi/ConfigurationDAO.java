@@ -9,29 +9,48 @@ import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 
 import java.util.List;
 
+import static npetzall.conman.server.api.Configuration.DEFAULT_ENV;
+
 public abstract class ConfigurationDAO {
 
     public enum Event {
         CREATED, UPDATED, UNMODIFIED
     }
 
-    @Mapper(ConfigurationMapper.class)
-    @SqlQuery("select service, key, value from configuration where service = :service")
-    public abstract List<Configuration> fetchAllForService(
-            @Bind("service") String service
-    );
+    public List<Configuration> fetchAllForService(
+            String service) {
+        return fetchAllForService(service, DEFAULT_ENV);
+    }
 
     @Mapper(ConfigurationMapper.class)
-    @SqlQuery("select service, key, value from configuration where service = :service and key = :key")
+    @SqlQuery("select service, key, env, value from configuration where service = :service and env = :env")
+    public abstract List<Configuration> fetchAllForService(
+            @Bind("service") String service,
+            @Bind("env") String env
+    );
+
+    public Configuration fetchConfigurationForService(
+            String service,
+            String key) {
+        return fetchConfigurationForService(service, key, DEFAULT_ENV);
+    }
+
+    @Mapper(ConfigurationMapper.class)
+    @SqlQuery("select service, key, env, value from configuration where service = :service and key = :key and env = :env")
     public abstract Configuration fetchConfigurationForService(
             @Bind("service") String service,
-            @Bind("key") String key
+            @Bind("key") String key,
+            @Bind("env") String env
     );
 
     public Event createOrUpdate(String service, String key, String value) {
-        Configuration config = fetchConfigurationForService(service, key);
+        return createOrUpdate(service, key, DEFAULT_ENV, value);
+    }
+
+    public Event createOrUpdate(String service, String key, String env, String value) {
+        Configuration config = fetchConfigurationForService(service, key, env);
         if (config == null) {
-            if (addConfiguration(service, key, value) == 1) {
+            if (addConfiguration(service, key, env, value) == 1) {
                 return Event.CREATED;
             } else {
                 return Event.UNMODIFIED;
@@ -39,7 +58,7 @@ public abstract class ConfigurationDAO {
         } else if (config.getValue().equals(value)) {
             return Event.UNMODIFIED;
         } else {
-            if (updateValue(service, key, value) == 1) {
+            if (updateValue(service, key, env, value) == 1) {
                 return Event.UPDATED;
             } else {
                 return Event.UNMODIFIED;
@@ -47,17 +66,19 @@ public abstract class ConfigurationDAO {
         }
     }
 
-    @SqlUpdate("insert into configuration (service,key,value) values (:service,:key,:value)")
+    @SqlUpdate("insert into configuration (service,key, env, value) values (:service,:key,:env,:value)")
     protected abstract int addConfiguration(
             @Bind("service") String service,
             @Bind("key") String key,
+            @Bind("env") String env,
             @Bind("value")String value
     );
 
-    @SqlUpdate("update configuration set value = :value where service = :service and key = :key")
+    @SqlUpdate("update configuration set value = :value where service = :service and key = :key and env = :env")
     protected abstract int updateValue(
             @Bind("service") String service,
             @Bind("key") String key,
+            @Bind("env") String env,
             @Bind("value")String value
     );
 }

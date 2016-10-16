@@ -21,14 +21,17 @@ class ConfigSpec extends Specification {
     Configuration configuration = new Configuration("testService","testKey", "testValue")
     @Shared
     Configuration configurationTwo = new Configuration("testService","testKey2", "testValue2")
+    @Shared
+    Configuration configurationCustomEnvOne = new Configuration(configuration.service, configuration.key, "customEnvValue")
 
     @Shared
     ConfigurationDAO configurationDAO = Stub(ConfigurationDAO) {
-        fetchAllForService(_) >> [configuration,configurationTwo]
-        fetchConfigurationForService(_,_) >> configuration
-        createOrUpdate("testService","testKey","testValueCreated") >> ConfigurationDAO.Event.CREATED
-        createOrUpdate("testService","testKey","testValueUnmodified") >> ConfigurationDAO.Event.UNMODIFIED
-        createOrUpdate("testService","testKey","testValueUpdated") >> ConfigurationDAO.Event.UPDATED
+        fetchAllForService(_,"default") >> [configuration,configurationTwo]
+        fetchConfigurationForService(_,_,"default") >> configuration
+        fetchConfigurationForService(_,_,"custom") >> configurationCustomEnvOne
+        createOrUpdate("testService","testKey","default","testValueCreated") >> ConfigurationDAO.Event.CREATED
+        createOrUpdate("testService","testKey","default","testValueUnmodified") >> ConfigurationDAO.Event.UNMODIFIED
+        createOrUpdate("testService","testKey","default","testValueUpdated") >> ConfigurationDAO.Event.UPDATED
     }
 
     @ClassRule
@@ -88,6 +91,19 @@ class ConfigSpec extends Specification {
                 .request().put(Entity.text("testValueUpdated"))
         then:
         response.status == Response.Status.OK.statusCode
+    }
+
+    def "Get config for env custom and it should be different from default"() {
+        when:
+        String defaultEnvValue = resources.client().target("/config/"+configuration.service+"/"+configuration.key+"/value")
+                .request().get(String.class)
+        and:
+        String customEnvValue = resources.client().target("/config/"+configuration.service+"/"+configuration.key+"/value?env=custom")
+                .request().get(String.class)
+        then:
+        configuration.value != configurationCustomEnvOne.value
+        defaultEnvValue == configuration.value
+        customEnvValue == configurationCustomEnvOne.value
     }
 
 }

@@ -31,6 +31,8 @@ class ConManConfigSpec extends Specification{
     Configuration configurationOne = new Configuration("testService","testKey","testValue")
     @Shared
     Configuration configurationTwo = new Configuration(configurationOne.service,"testKeyUpdate","testValueOld")
+    @Shared
+    Configuration configurationCustomEnvOne = new  Configuration(configurationOne.service, configurationOne.key, "custom", "customEnvValue")
 
     @ClassRule
     @Shared
@@ -47,6 +49,7 @@ class ConManConfigSpec extends Specification{
         ConfigurationDAO configurationDAO = dbi.onDemand(ConfigurationDAO.class);
         configurationDAO.createOrUpdate(configurationOne.service, configurationOne.key, configurationOne.value)
         configurationDAO.createOrUpdate(configurationTwo.service, configurationTwo.key, configurationTwo.value)
+        configurationDAO.createOrUpdate(configurationCustomEnvOne.service, configurationCustomEnvOne.key, configurationCustomEnvOne.env, configurationCustomEnvOne.value)
     }
 
     def "Get configuration"() {
@@ -135,6 +138,24 @@ class ConManConfigSpec extends Specification{
         then:
         responseFromUpdate.status == Response.Status.OK.statusCode
         newValue == "testValueNew"
+    }
+
+    def "Get different values for different environments"() {
+        setup:
+        Client client = ClientBuilder.newClient()
+
+        when:
+        String defaultEnv = client.target(String.format("http://localhost:%d/config/"+configurationOne.service+"/"+configurationOne.key+"/value", RULE.getLocalPort()))
+                .request().get(String.class)
+
+        and:
+        String customEnv = client.target(String.format("http://localhost:%d/config/"+configurationOne.service+"/"+configurationOne.key+"/value?env=custom", RULE.getLocalPort()))
+                .request().get(String.class)
+
+        then:
+        configurationOne.value != configurationCustomEnvOne.value
+        defaultEnv == configurationOne.value
+        customEnv == configurationCustomEnvOne.value
     }
 
 }

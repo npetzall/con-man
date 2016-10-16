@@ -33,6 +33,7 @@ class ConfigurationSpec extends Specification {
         with(deserializedConfiguration){
             service == configuration.service
             key == configuration.key
+            env == configuration.env
             value == configuration.value
         }
     }

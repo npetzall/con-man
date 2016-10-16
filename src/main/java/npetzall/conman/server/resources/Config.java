@@ -26,8 +26,10 @@ public class Config {
     @Path("/{service}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Configuration> getConfigurations(@PathParam("service") String service) {
-        return configurationDAO.fetchAllForService(service);
+    public List<Configuration> getConfigurations(
+            @PathParam("service") String service,
+            @DefaultValue(Configuration.DEFAULT_ENV) @QueryParam("env") String env) {
+        return configurationDAO.fetchAllForService(service, env);
     }
 
     @Path("/{service}/{key}")
@@ -35,8 +37,9 @@ public class Config {
     @Produces(MediaType.APPLICATION_JSON)
     public Configuration getConfiguration(
             @PathParam("service") String service,
-            @PathParam("key") String key) {
-        return configurationDAO.fetchConfigurationForService(service, key);
+            @PathParam("key") String key,
+            @DefaultValue(Configuration.DEFAULT_ENV) @QueryParam("env") String env) {
+        return configurationDAO.fetchConfigurationForService(service, key, env);
     }
 
     @Path("/{service}/{key}/value")
@@ -44,8 +47,9 @@ public class Config {
     @Produces(MediaType.TEXT_PLAIN)
     public String getConfigurationValue(
             @PathParam("service") String service,
-            @PathParam("key") String key) {
-        return configurationDAO.fetchConfigurationForService(service, key).getValue();
+            @PathParam("key") String key,
+            @DefaultValue(Configuration.DEFAULT_ENV) @QueryParam("env") String env) {
+        return configurationDAO.fetchConfigurationForService(service, key, env).getValue();
     }
 
     @Path("/{service}/{key}/value")
@@ -54,18 +58,19 @@ public class Config {
     public Response createOrUpdateConfiguration(
             @PathParam("service") String service,
             @PathParam("key") String key,
+            @DefaultValue(Configuration.DEFAULT_ENV) @QueryParam("env") String env,
             String value) {
         try {
-            ConfigurationDAO.Event event = configurationDAO.createOrUpdate(service, key, value);
+            ConfigurationDAO.Event event = configurationDAO.createOrUpdate(service, key, env, value);
             if (event == ConfigurationDAO.Event.CREATED) {
-                return Response.created(UriBuilder.fromPath("/config/{service}/{key}").build(service, key)).build();
+                return Response.created(UriBuilder.fromPath("/config/{service}/{key}").queryParam("env", env).build(service, key)).build();
             } else if (event == ConfigurationDAO.Event.UPDATED || event == ConfigurationDAO.Event.UNMODIFIED) {
-                return Response.ok().location(UriBuilder.fromPath("/config/{service}/{key}").build(service, key)).build();
+                return Response.ok().location(UriBuilder.fromPath("/config/{service}/{key}").queryParam("env", env).build(service, key)).build();
             } else {
                 return Response.serverError().build();
             }
         } catch (StatementException e) {
-            log.error("Failed to create or update [service: "+service+",key: "+key+"]", e);
+            log.error("Failed to create or update [service: "+service+",key: "+key+", env: "+env+"]", e);
             return Response.serverError().build();
         }
     }

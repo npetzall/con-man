@@ -83,4 +83,24 @@ class ConfigurationDAOSpec extends Specification {
         eventUpdated == ConfigurationDAO.Event.UPDATED
     }
 
+    def "Get custom env value and not default"() {
+        ConfigurationDAO configurationDAO = h2MemoryRule.getDbi().onDemand(ConfigurationDAO.class)
+        Configuration configuration = new Configuration("testDAOServiceEnvCustom","testDAOKey", "testDAOValue")
+        Configuration configurationEnvCustom = new Configuration(configuration.service, configuration.key, "customDAOValue")
+
+        when:
+        ConfigurationDAO.Event defaultConfigAddEvent = configurationDAO.createOrUpdate(configuration.service, configuration.key, configuration.value)
+        ConfigurationDAO.Event envCustomConfigAddEvent = configurationDAO.createOrUpdate(configurationEnvCustom.service, configurationEnvCustom.key, "custom", configurationEnvCustom.value)
+        and:
+        Configuration defaultConfig = configurationDAO.fetchConfigurationForService(configuration.service, configuration.key)
+        Configuration envCustomConfig = configurationDAO.fetchConfigurationForService(configurationEnvCustom.service, configurationEnvCustom.key, "custom")
+
+        then:
+        configuration.value != configurationEnvCustom.value
+        defaultConfigAddEvent == ConfigurationDAO.Event.CREATED
+        envCustomConfigAddEvent == ConfigurationDAO.Event.CREATED
+        defaultConfig.value == configuration.value
+        envCustomConfig.value == configurationEnvCustom.value
+    }
+
 }
