@@ -9,17 +9,10 @@ import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 
 import java.util.List;
 
-import static npetzall.conman.server.api.Configuration.DEFAULT_ENV;
-
 public abstract class ConfigurationDAO {
 
     public enum Event {
         CREATED, UPDATED, UNMODIFIED
-    }
-
-    public List<Configuration> fetchAllForService(
-            String service) {
-        return fetchAllForService(service, DEFAULT_ENV);
     }
 
     @Mapper(ConfigurationMapper.class)
@@ -29,12 +22,6 @@ public abstract class ConfigurationDAO {
             @Bind("env") String env
     );
 
-    public Configuration fetchConfigurationForService(
-            String service,
-            String key) {
-        return fetchConfigurationForService(service, key, DEFAULT_ENV);
-    }
-
     @Mapper(ConfigurationMapper.class)
     @SqlQuery("select service, key, env, value from configuration where service = :service and key = :key and env = :env")
     public abstract Configuration fetchConfigurationForService(
@@ -42,10 +29,6 @@ public abstract class ConfigurationDAO {
             @Bind("key") String key,
             @Bind("env") String env
     );
-
-    public Event createOrUpdate(String service, String key, String value) {
-        return createOrUpdate(service, key, DEFAULT_ENV, value);
-    }
 
     public Event createOrUpdate(String service, String key, String env, String value) {
         Configuration config = fetchConfigurationForService(service, key, env);

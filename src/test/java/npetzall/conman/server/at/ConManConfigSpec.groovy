@@ -47,8 +47,8 @@ class ConManConfigSpec extends Specification{
         Liquibase liquibase = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(dbi.open().getConnection()));
         liquibase.update("");
         ConfigurationDAO configurationDAO = dbi.onDemand(ConfigurationDAO.class);
-        configurationDAO.createOrUpdate(configurationOne.service, configurationOne.key, configurationOne.value)
-        configurationDAO.createOrUpdate(configurationTwo.service, configurationTwo.key, configurationTwo.value)
+        configurationDAO.createOrUpdate(configurationOne.service, configurationOne.key, configurationOne.env, configurationOne.value)
+        configurationDAO.createOrUpdate(configurationTwo.service, configurationTwo.key, configurationTwo.env, configurationTwo.value)
         configurationDAO.createOrUpdate(configurationCustomEnvOne.service, configurationCustomEnvOne.key, configurationCustomEnvOne.env, configurationCustomEnvOne.value)
     }
 
